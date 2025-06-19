@@ -1,0 +1,3 @@
+This is a placeholder file because binary image files cannot be created directly here.
+Please add an NDVI sample image named 'ndvi_sample.png' in the 'assets' folder manually.
+Alternatively, I can modify the TelaVisualizacaoNDVI.js to display a colored box simulating NDVI instead of an image.

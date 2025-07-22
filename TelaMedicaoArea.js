@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Button, TextInput, Alert } from 'react-native';
-import MapView, { Polygon, Marker } from 'react-native-maps';
+import MapView, { Polygon, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import * as turf from '@turf/turf';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { MAPBOX_TOKEN } from './config';
 
 export default function TelaMedicaoArea() {
   const [points, setPoints] = useState([]);
   const [area, setArea] = useState(0);
   const [nomeTalhao, setNomeTalhao] = useState('');
+
+  const mapboxStyleUrl = `https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=${MAPBOX_TOKEN}`;
 
   const handleMapPress = (e) => {
     const newPoint = e.nativeEvent.coordinate;
@@ -74,6 +77,10 @@ export default function TelaMedicaoArea() {
           latitudeDelta: 0.05,
           longitudeDelta: 0.05,
         }}
+        provider={PROVIDER_GOOGLE}
+        customMapStyle={null}
+        mapType="standard"
+        // Mapbox tiles can be added via UrlTile if needed
       >
         {points.length > 0 && (
           <>

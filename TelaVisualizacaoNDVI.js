@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import MapView, { UrlTile } from 'react-native-maps';
 
 export default function TelaVisualizacaoNDVI() {
-  const ndviTileUrl = 'https://tileserver.example.com/ndvi/{z}/{x}/{y}.png'; // Replace with actual NDVI tile server URL
+  const ndviTileUrl = 'https://real-ndvi-tileserver.com/tiles/{z}/{x}/{y}.png'; // Substitua pela URL real do servidor de tiles NDVI
 
   return (
     <View style={styles.container}>

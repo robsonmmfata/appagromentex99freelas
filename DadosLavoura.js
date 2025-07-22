@@ -1,7 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
+import { OPENWEATHER_API_KEY } from './config';
 
 export default function DadosLavoura() {
   const [dadosSolo] = useState({
@@ -10,19 +10,37 @@ export default function DadosLavoura() {
   });
 
   const [dadosClima, setDadosClima] = useState({
-    temperatura: '28°C',
-    umidade: '60%',
-    previsao: 'Sol com poucas nuvens',
+    temperatura: null,
+    umidade: null,
+    previsao: null,
   });
 
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    const intervalo = setInterval(() => {
-      setDadosClima((prev) => ({
-        ...prev,
-        temperatura: `${Math.floor(Math.random() * 5) + 26}°C`,
-      }));
-    }, 5000);
-    return () => clearInterval(intervalo);
+    const fetchClima = async () => {
+      try {
+        const lat = -15.7801;
+        const lon = -47.9292;
+        const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=pt_br&appid=${OPENWEATHER_API_KEY}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        setDadosClima({
+          temperatura: data.main.temp + '°C',
+          umidade: data.main.humidity + '%',
+          previsao: data.weather[0].description,
+        });
+      } catch (error) {
+        setDadosClima({
+          temperatura: 'N/A',
+          umidade: 'N/A',
+          previsao: 'N/A',
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchClima();
   }, []);
 
   return (
@@ -61,25 +79,31 @@ export default function DadosLavoura() {
       {/* Dados do Clima */}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Clima</Text>
-        <View style={styles.row}>
-          <Text style={styles.label}>Temperatura:</Text>
-          <Text style={styles.value}>{dadosClima.temperatura}</Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>Umidade:</Text>
-          <Text style={styles.value}>{dadosClima.umidade}</Text>
-        </View>
-        <View style={styles.row}>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <MaterialIcons 
-              name={dadosClima.previsao.includes('Sol') ? 'wb-sunny' : 'cloud'} 
-              size={18} 
-              color="#EA702D" 
-            />
-            <Text style={styles.label}> Previsão:</Text>
-          </View>
-          <Text style={styles.value}>{dadosClima.previsao}</Text>
-        </View>
+        {loading ? (
+          <ActivityIndicator size="small" color="#2A5A3C" />
+        ) : (
+          <>
+            <View style={styles.row}>
+              <Text style={styles.label}>Temperatura:</Text>
+              <Text style={styles.value}>{dadosClima.temperatura}</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>Umidade:</Text>
+              <Text style={styles.value}>{dadosClima.umidade}</Text>
+            </View>
+            <View style={styles.row}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <MaterialIcons 
+                  name={dadosClima.previsao && dadosClima.previsao.includes('sol') ? 'wb-sunny' : 'cloud'} 
+                  size={18} 
+                  color="#EA702D" 
+                />
+                <Text style={styles.label}> Previsão:</Text>
+              </View>
+              <Text style={styles.value}>{dadosClima.previsao}</Text>
+            </View>
+          </>
+        )}
       </View>
 
       {/* Recomendações */}

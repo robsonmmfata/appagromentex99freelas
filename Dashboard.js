@@ -1,24 +1,63 @@
-
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   View, 
   Text, 
   StyleSheet, 
   ScrollView,
-  Button
+  Button,
+  ActivityIndicator
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { OPENWEATHER_API_KEY } from './config';
 
 export default function Dashboard() {
   const navigation = useNavigation();
 
-  // Dados simulados para o protótipo
-  const dadosProducao = {
-    areaTotal: '150 ha',
-    areaPlantada: '120 ha',
-    proximaColheita: '15 dias',
-    umidadeSolo: '65%'
-  };
+  const [weather, setWeather] = useState(null);
+  const [loadingWeather, setLoadingWeather] = useState(true);
+  const [productionData, setProductionData] = useState(null);
+  const [loadingProduction, setLoadingProduction] = useState(true);
+
+  useEffect(() => {
+    const fetchWeather = async () => {
+      try {
+        // Coordenadas fixas para exemplo (Brasília)
+        const lat = -15.7801;
+        const lon = -47.9292;
+        const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=pt_br&appid=${OPENWEATHER_API_KEY}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        setWeather(data);
+      } catch (error) {
+        console.error('Erro ao buscar previsão do tempo:', error);
+      } finally {
+        setLoadingWeather(false);
+      }
+    };
+
+    const fetchProductionData = async () => {
+      try {
+        // TODO: Substituir pela URL real da API de dados de produção
+        const response = await fetch('https://api.real-de-producao.com/summary');
+        if (!response.ok) {
+          console.error('Erro na resposta da API de produção:', response.status);
+          setProductionData(null);
+          return;
+        }
+        const data = await response.json();
+        console.log('Dados de produção recebidos:', data);
+        setProductionData(data);
+      } catch (error) {
+        console.error('Erro ao buscar dados de produção:', error);
+        setProductionData(null);
+      } finally {
+        setLoadingProduction(false);
+      }
+    };
+
+    fetchWeather();
+    fetchProductionData();
+  }, []);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -27,22 +66,46 @@ export default function Dashboard() {
       {/* Resumo da Produção */}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Resumo da Produção</Text>
-        <View style={styles.metricRow}>
-          <Text style={styles.metricLabel}>Área Total:</Text>
-          <Text style={styles.metricValue}>{dadosProducao.areaTotal}</Text>
-        </View>
-        <View style={styles.metricRow}>
-          <Text style={styles.metricLabel}>Área Plantada:</Text>
-          <Text style={styles.metricValue}>{dadosProducao.areaPlantada}</Text>
-        </View>
-        <View style={styles.metricRow}>
-          <Text style={styles.metricLabel}>Próxima Colheita:</Text>
-          <Text style={styles.metricValue}>{dadosProducao.proximaColheita}</Text>
-        </View>
-        <View style={styles.metricRow}>
-          <Text style={styles.metricLabel}>Umidade do Solo:</Text>
-          <Text style={styles.metricValue}>{dadosProducao.umidadeSolo}</Text>
-        </View>
+        {loadingProduction ? (
+          <ActivityIndicator size="small" color="#2A5A3C" />
+        ) : productionData ? (
+          <>
+            <View style={styles.metricRow}>
+              <Text style={styles.metricLabel}>Área Total:</Text>
+              <Text style={styles.metricValue}>{productionData.areaTotal}</Text>
+            </View>
+            <View style={styles.metricRow}>
+              <Text style={styles.metricLabel}>Área Plantada:</Text>
+              <Text style={styles.metricValue}>{productionData.areaPlantada}</Text>
+            </View>
+            <View style={styles.metricRow}>
+              <Text style={styles.metricLabel}>Próxima Colheita:</Text>
+              <Text style={styles.metricValue}>{productionData.proximaColheita}</Text>
+            </View>
+            <View style={styles.metricRow}>
+              <Text style={styles.metricLabel}>Umidade do Solo:</Text>
+              <Text style={styles.metricValue}>{productionData.umidadeSolo}</Text>
+            </View>
+          </>
+        ) : (
+          <Text>Não foi possível carregar os dados de produção.</Text>
+        )}
+      </View>
+
+      {/* Previsão do Tempo */}
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Previsão do Tempo</Text>
+        {loadingWeather ? (
+          <ActivityIndicator size="small" color="#2A5A3C" />
+        ) : weather ? (
+          <View>
+            <Text>Temperatura Atual: {weather.main.temp} °C</Text>
+            <Text>Condição: {weather.weather[0].description}</Text>
+            <Text>Umidade: {weather.main.humidity} %</Text>
+          </View>
+        ) : (
+          <Text>Não foi possível carregar a previsão do tempo.</Text>
+        )}
       </View>
 
       {/* Botões para novas funcionalidades */}
@@ -120,5 +183,5 @@ const styles = StyleSheet.create({
   statusText: {
     color: '#2A5A3C',
     fontSize: 14,
-  }
+  },
 });

@@ -4,31 +4,38 @@
     "slug": "agromentex",
     "version": "1.0.0",
     "sdkVersion": "53.0.0",
-    "platforms": ["ios", "android"],
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "orientation": "portrait",
-
     "userInterfaceStyle": "light",
     "splash": {
-      
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true
     },
     "android": {
-    
+      "package": "com.robsonalexmmfata1.agromentex"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "server": {
-      "tunnel": true  
+      "tunnel": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "025bbe66-f014-4f09-ad8c-eadf450d36e2"
+      }
     }
-
   }
 }
